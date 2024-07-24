@@ -15,6 +15,7 @@ const WalletInfo = () => {
     const [customContracts, setCustomContracts] = useState([]);
     const [tokenNames, setTokenNames] = useState({});
     const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     const fetchBalances = async (walletAddress) => {
         try {
@@ -68,6 +69,11 @@ const WalletInfo = () => {
         setTokenNames(names);
     };
 
+    // Toggle dark/light mode
+    const toggleDarkMode = () => {
+        setIsDarkMode(!isDarkMode);
+    };
+
     useEffect(() => {
         if (address) {
             fetchBalances(address);
@@ -80,6 +86,15 @@ const WalletInfo = () => {
             fetchTokenNames();
         };
     }, [customContracts]);
+
+    // Event handlers
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [isDarkMode]);
 
     const handleAddressChange = (e) => {
         setAddress(e.target.value);
@@ -115,102 +130,109 @@ const WalletInfo = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800">Wallet Information</h1>
-            <form onSubmit={handleSubmit} className="mb-6">
-                <div className="flex mb-4">
-                    <input
-                        type="text"
-                        value={address}
-                        onChange={handleAddressChange}
-                        placeholder="Enter wallet address"
-                        className="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+        <div className={`min-h-screen ${isDarkMode ? 'dark bg-custom-dark' : 'bg-custom-light'} transition-colors duration-200 flex items-center justify-center px-4`}>
+            <div className="max-w-2xl w-full mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Wallet Information</h1>
                     <button 
-                        type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onClick={toggleDarkMode} 
+                        className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200"
                     >
-                        Fetch Balances
+                        {isDarkMode ? 'Light Mode' : 'Dark Mode'}
                     </button>
                 </div>
-                <div className="flex mb-4">
-                    <input
-                        type="text"
-                        value={contractAddresses}
-                        onChange={handleContractAddressesChange}
-                        placeholder="Enter contract addresses (comma-separated)"
-                        className="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button 
-                        type="button"
-                        onClick={handleAddContracts}
-                        className="px-4 py-2 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                        Add Contracts
-                    </button>
-                </div>
-            </form>
-            {customContracts.length > 0 && (
-                <div className="mb-6">
-                    <h3 className="text-xl font-semibold mb-2 text-gray-700">Custom Contracts:</h3>
-                    <ul className="space-y-2">
-                        {customContracts.map((contract, index) => (
-                            <li key={index} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-                                <span className="font-mono">
-                                    {tokenNames[contract] ? `${tokenNames[contract]} (${contract})` : contract}
-                                </span>
-                                <button 
-                                    onClick={() => handleRemoveContract(contract)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                >
-                                    Remove
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-            {error && <div className="text-red-500 mb-4">Error: {error}</div>}
-            {address && (
-                <>
+                <form onSubmit={handleSubmit} className="mb-6">
+                    <div className="flex mb-4">
+                        <input
+                            type="text"
+                            value={address}
+                            onChange={handleAddressChange}
+                            placeholder="Enter wallet address"
+                            className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        />
+                        <button 
+                            type="submit"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            Fetch Balances
+                        </button>
+                    </div>
+                    <div className="flex mb-4">
+                        <input
+                            type="text"
+                            value={contractAddresses}
+                            onChange={handleContractAddressesChange}
+                            placeholder="Enter contract addresses (comma-separated)"
+                            className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        />
+                        <button 
+                            type="button"
+                            onClick={handleAddContracts}
+                            className="px-4 py-2 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                            Add Contracts
+                        </button>
+                    </div>
+                </form>
+                {customContracts.length > 0 && (
                     <div className="mb-6">
-                        <h2 className="text-2xl font-semibold mb-2 text-gray-700">ETH Balance</h2>
-                        {ethBalance !== null ? (
-                            <p className="text-xl font-mono bg-gray-100 p-3 rounded">{ethBalance} ETH</p>
-                        ) : (
-                            <p className="text-gray-500">Loading...</p>
-                        )}
-                    </div>
-                    <div className='mb-6'>
-                        <h2 className="text-2xl font-semibold mb-2 text-gray-700">Transaction Count</h2>
-                        {txnCount !== null ? (
-                            <p className="text-xl font-mono bg-gray-100 p-3 rounded">{txnCount}</p>
-                        ) : (
-                            <p className="text-gray-500">Loading...</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <h2 className="text-2xl font-semibold mb-2 text-gray-700">Token Balances</h2>
-                        {isLoadingTokens ? (
-                            <p className="text-gray-500">Loading token balances...</p>
-                        ) : tokenBalances.length > 0 ? (
-                            <div className="space-y-2">
-                                {tokenBalances.map(({ tokenName, tokenAddress, readableBalance }) => (
-                                    <div key={tokenAddress} 
-                                        className="bg-gray-100 p-3 rounded flex justify-between items-center"
+                        <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Custom Contracts:</h3>
+                        <ul className="space-y-2">
+                            {customContracts.map((contract, index) => (
+                                <li key={index} className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                                    <span className="font-mono text-gray-800 dark:text-gray-200">
+                                        {tokenNames[contract] ? `${tokenNames[contract]} (${contract})` : contract}
+                                    </span>
+                                    <button 
+                                        onClick={() => handleRemoveContract(contract)}
+                                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
                                     >
-                                        <span className="font-semibold">{tokenName || tokenAddress}</span>
-                                        <span className="font-mono">{readableBalance}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-gray-500">No tokens found</p>
-                        )}
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                </>
-            )}
+                )}
+                {error && <div className="text-red-500 mb-4 dark:text-red-400">Error: {error}</div>}
+                {address && (
+                    <>
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">ETH Balance</h2>
+                            {ethBalance !== null ? (
+                                <p className="text-xl font-mono bg-gray-100 dark:bg-gray-700 p-3 rounded text-gray-800 dark:text-gray-200">{ethBalance} ETH</p>
+                            ) : (
+                                <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+                            )}
+                        </div>
+                        <div className='mb-6'>
+                            <h2 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Transaction Count</h2>
+                            {txnCount !== null ? (
+                                <p className="text-xl font-mono bg-gray-100 dark:bg-gray-700 p-3 rounded text-gray-800 dark:text-gray-200">{txnCount}</p>
+                            ) : (
+                                <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+                            )}
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Token Balances</h2>
+                            {isLoadingTokens ? (
+                                <p className="text-gray-500 dark:text-gray-400">Loading token balances...</p>
+                            ) : tokenBalances.length > 0 ? (
+                                <div className="space-y-2">
+                                    {tokenBalances.map(({ tokenName, tokenAddress, readableBalance }) => (
+                                        <div key={tokenAddress} className="bg-gray-100 dark:bg-gray-700 p-3 rounded flex justify-between items-center">
+                                            <span className="font-semibold text-gray-800 dark:text-gray-200">{tokenName || tokenAddress}</span>
+                                            <span className="font-mono text-gray-800 dark:text-gray-200">{readableBalance}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 dark:text-gray-400">No tokens found</p>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
